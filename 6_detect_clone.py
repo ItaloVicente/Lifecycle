@@ -97,7 +97,8 @@ for project in projects:
                     ["git", "reset", "--hard", parent_sha],
                     check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 )
-                run_simian(repo_path, project, number_pr, number_commit, "parent")
+                run_nicad(repo_path, "test.xml")
+                # run_simian(repo_path, project, number_pr, number_commit, "parent")
             except subprocess.CalledProcessError:
                 print(f"⚠️ Failed to checkout parent {parent_sha} ({project} PR {number_pr})")
 
@@ -108,7 +109,7 @@ for project in projects:
                     ["git", "reset", "--hard", child_sha],
                     check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 )
-                run_simian(repo_path, project, number_pr, number_commit, "child")
+                # run_simian(repo_path, project, number_pr, number_commit, "child")
             except subprocess.CalledProcessError:
                 print(f"⚠️ Failed to checkout child {child_sha} ({project} PR {number_pr})")
 
