@@ -10,81 +10,181 @@ computation for each clone across the commits of a PR.
 
 ------------------------------------------------------------------------
 
+## ⚠️ System Requirements
+
+**This project only works on Ubuntu/Linux systems.** The pipeline relies on Linux-specific tools and shell scripts (e.g., `run_all.sh`) and is not compatible with Windows or macOS.
+
+**Required:**
+- Ubuntu (or compatible Linux distribution)
+- Python 3.12 or higher
+- Git
+- Poetry (for dependency management) or pip
+
+------------------------------------------------------------------------
+
 ## 📦 1. Setting Up the Environment
+
+### Option A: Using Poetry (Recommended)
+
+This project uses **Poetry** for dependency management. If you don't have Poetry installed, install it first:
+
+```bash
+# Install Poetry on Ubuntu/Linux
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+After installing Poetry, add it to your PATH (follow the instructions shown after installation).
+
+Then, install the project dependencies:
+
+```bash
+# Install all dependencies
+poetry install
+
+# Activate the virtual environment created by Poetry
+poetry shell
+```
+
+### Option B: Using pip and venv
 
 Create and activate a virtual environment:
 
-``` bash
+```bash
 python3 -m venv venv
-source venv/bin/activate      # Linux/macOS
-venv\Scripts\activate         # Windows
+source venv/bin/activate
 ```
 
 Install dependencies:
 
-``` bash
+```bash
 pip install -r requirements.txt
 ```
 
 ------------------------------------------------------------------------
 
-## 📁 2. Metadata Configuration
+## ⚙️ 2. Configuration
 
-Navigate to:
+### 🔐 2.1. GitHub Token Configuration
 
-    metadata/dados/
+Create a `.env` file in the project root directory:
 
-Inside this folder, edit **settings.ini**.\
-It follows this structure:
+```bash
+cp .env-example .env
+```
 
-    [DETAILS]
+Edit the `.env` file and add your GitHub personal access token:
 
-    projects = Addax, AndroidTVMovieParadise, AntiCheatAddition, ApplicationInsights-Java, Chronicle-Bytes, Chronicle-Core, Chronicle-Logger, Chronicle-Threads, Chronicle-Values, Chronicle-Wire, DNAnalyzer, DialogX, Harmonic-HN, Java-Runtime-Compiler, Java-Thread-Affinity, MadParticle, Perl5-IDEA, Stirling-PDF, WxJava, apollo, azure-sdk-for-java, bsl-language-server, camunda, core, datahub, dbeaver-agent, dd-trace-java, doma, edumips64, eo, freeplane, gb28181-proxy, java-util, json-io, ono, operaton, pinot, plantuml, psiviewer, pulsar, sakai, starrocks, test-driven-spring-boot, traccar, typespec, valkey-glide, wrongsecrets
+```
+GITHUB_TOKEN=your_github_token_here
+```
 
-    min_clone = 6
-    max_befores = 1
-    path_to_repo = /home/linux/Pesquisa-MSR/simian
-    path_to_elastic = /home/linux/Pesquisa-MSR/siamese/elasticsearch/elasticsearch-2.2.0
-    language = java
+**Important:** You need a GitHub personal access token to access the GitHub API. Generate one at: https://github.com/settings/tokens
 
-### 🔹 Important Notes
+### 📁 2.2. Settings Configuration
 
--   **language** must be the *name* of the programming language (e.g.,
-    `Python`, `Java`, `Go`).
--   When running **Simian**, you must use the **file extension** (e.g.,
-    `py`, `java`, `go`).
+Edit the `settings.ini` file in the project root directory. It follows this structure:
+
+```ini
+[DETAILS]
+
+# Minimum number of lines for a clone
+min_clone = 6
+
+# Maximum number of project versions your machine can have
+max_befores = 1
+
+# Programming language for clone detection
+# Supported languages: C (.c), C# (.cs), Java (.java), Python (.py), 
+# PHP (.php), Ruby (.rb), WSDL (.wsdl), ATL (.atl)
+# Use the full language name (e.g., "Python", "Java", "C", "C#")
+language = Python
+```
+
+**Important Notes:**
+
+-   **language** must be the *full name* of the programming language (e.g., `Python`, `Java`, `C`, `C#`, `Go`).
+-   The language name should match what NiCad expects (see comments in `settings.ini` for supported languages).
 
 ------------------------------------------------------------------------
 
-## 🔐 3. GitHub Token
+## ▶️ 3. Executing the Pipeline
 
-Create a file named:
+### Quick Start: Using the Automated Script
 
-    token.ini
+The easiest way to run the entire pipeline is using the `run_all.sh` script, which executes all numbered scripts (0-10) in sequence:
 
-Insert your personal GitHub token in it.
+```bash
+# Make sure the script is executable
+chmod +x run_all.sh
 
-------------------------------------------------------------------------
+# Run the entire pipeline
+./run_all.sh
+```
 
-## ▶️ 4. Executing the Pipeline
+The script will:
+- Execute all scripts from `0_get_aidev_csv.py` to `10_count_lifecycle.py` in sequence
+- Display progress and execution time for each step
+- Stop execution if any script fails
+- Generate a detailed execution summary report in `execution_summary_YYYYMMDD_HHMMSS.txt`
+
+The summary report includes:
+- Overall statistics (successes, failures, total execution time)
+- Step-by-step execution details with individual timing for each script
+
+### Manual Execution
+
+If you prefer to run scripts individually:
 
 1.  First, run:
+    ```bash
+    python3 0_get_aidev_csv.py
+    ```
 
-```{=html}
-<!-- -->
-```
-    prs_project_1.py
+2.  Then execute the remaining scripts in ascending order:
+    ```bash
+    python3 1_prs_project.py
+    python3 2_mining_repos.py
+    python3 3_get_commits_prs_correct.py
+    python3 4_break_projects.py
+    python3 5_take_projects.py
+    python3 6_detect_clone.py
+    python3 7_parser_clones.py
+    python3 8_track_clones.py
+    python3 9_made_lifecycle.py
+    python3 10_count_lifecycle.py
+    ```
 
-2.  Return to the project root directory.
+------------------------------------------------------------------------
 
-3.  Execute **all scripts whose names end with a number** (e.g.,
-    `script_1.py`, `script_2.py`), in *ascending order*.
+## 📂 4. Generated Directories
 
-4.  Next, run **all scripts whose names begin with a number and end with
-    `(simian)`**, again in order.
+During execution, the pipeline creates several directories to store intermediate and final results:
 
-5.  Finally, run the additional script responsible for clone counting
-    and clone lifecycle analysis.
+### Core Data Directories
+
+- **`AIDev_Dataset/`**: Contains the downloaded AI Dev dataset CSV files with information about AI-generated pull requests.
+
+- **`metadata/`**: Stores metadata files including project configurations, PR information, and intermediate processing data.
+
+- **`git_repos/`**: Contains cloned Git repositories for each project being analyzed. These are the repositories that will be scanned for code clones.
+
+### Clone Detection Results
+
+- **`search_results/`**: Stores XML files containing clone detection results from NiCad. Each file contains detected code clones for a specific project, PR, and commit.
+
+- **`clones_classified/`**: Contains classified clone data, where clones are categorized by type (e.g., persistent, transient, etc.) and behavior.
+
+### Analysis Results
+
+- **`lifetimes/`**: Stores lifecycle analysis results, tracking how clones evolve across commits in pull requests. Contains data about clone persistence, duration, and evolution patterns.
+
+- **`figures/`**: Contains generated visualizations and plots related to the analysis (if any scripts generate figures).
+
+### Summary Reports
+
+- **`execution_summary_*.txt`**: Detailed execution reports generated by `run_all.sh`, containing timing information and execution status for each script.
+
+**Note:** These directories are created automatically when needed. You can safely delete them to start fresh, but be aware that regenerating data may take significant time depending on the number of projects and PRs being analyzed.
 
 ------------------------------------------------------------------------
 
@@ -93,7 +193,7 @@ Insert your personal GitHub token in it.
 This pipeline enables:
 
 -   Mining PRs generated by autonomous AI agents.
--   Detecting code clones using Simian and Siamese.
+-   Detecting code clones using NiCad (clone detection tool).
 -   Classifying clones by type and behavior.
 -   Computing recurrence and lifecycle duration of each clone.
 -   Counting affected PRs.
@@ -102,14 +202,32 @@ This pipeline enables:
 The framework is designed for research on the **impact of AI agents on
 software development**, especially regarding:
 
--   Code duplication\
--   Software quality\
--   Maintainability\
+-   Code duplication
+-   Software quality
+-   Maintainability
 -   Evolutionary behavior of AI-generated code
 
 ------------------------------------------------------------------------
 
-## ✔️ 6. Contact
+## 📋 6. Pipeline Overview
+
+The pipeline consists of 11 scripts executed in sequence:
+
+1. **`0_get_aidev_csv.py`**: Downloads the AI Dev dataset
+2. **`1_prs_project.py`**: Extracts PR information for projects
+3. **`2_mining_repos.py`**: Clones Git repositories for analysis
+4. **`3_get_commits_prs_correct.py`**: Extracts commit information from PRs
+5. **`4_break_projects.py`**: Breaks down projects into analyzable units
+6. **`5_take_projects.py`**: Selects projects for clone detection
+7. **`6_detect_clone.py`**: Performs clone detection using NiCad
+8. **`7_parser_clones.py`**: Parses clone detection results
+9. **`8_track_clones.py`**: Tracks clones across commits
+10. **`9_made_lifecycle.py`**: Computes clone lifecycles and classifies them
+11. **`10_count_lifecycle.py`**: Generates final statistics and counts
+
+------------------------------------------------------------------------
+
+## ✔️ 7. Contact
 
 This project was developed for academic and scientific purposes related
 to the study of clone generation and evolution in AI-generated code.
