@@ -5,6 +5,7 @@ import subprocess
 import requests
 import configparser
 from dotenv import load_dotenv
+from paths import git_repos_path, metadata_path
 
 # === Read token from .ini file ===
 load_dotenv()
@@ -18,11 +19,10 @@ LANGUAGE = config["DETAILS"]["language"]
 print(f"Selected language: {LANGUAGE}")
 
 # === Create output directory ===
-output_dir = "git_repos"
-os.makedirs(output_dir, exist_ok=True)
+os.makedirs(git_repos_path, exist_ok=True)
 
 # === Read CSV ===
-csv_path = f"metadata/{LANGUAGE.lower()}_pr_commits_without_parents.csv"
+csv_path = f"{metadata_path}/{LANGUAGE.lower()}_pr_commits_without_parents.csv"
 if not os.path.exists(csv_path):
     raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
@@ -51,7 +51,7 @@ def get_clone_url(api_url: str) -> str | None:
 
 # === Clone repositories ===
 for i, api_url in enumerate(tqdm(repos, desc=f"Cloning repositories ({LANGUAGE})")):
-    if i == 4:
+    if i == 2:
         break
 
     clone_url = get_clone_url(api_url)
@@ -60,7 +60,7 @@ for i, api_url in enumerate(tqdm(repos, desc=f"Cloning repositories ({LANGUAGE})
         continue
 
     repo_name = clone_url.split("/")[-1].replace(".git", "")
-    repo_path = os.path.join(output_dir, repo_name)
+    repo_path = os.path.join(git_repos_path, repo_name)
 
     if os.path.exists(repo_path):
         print(f"Repository '{repo_name}' already exists, skipping.")

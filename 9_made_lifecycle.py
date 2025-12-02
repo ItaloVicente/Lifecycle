@@ -2,16 +2,17 @@ import os
 import pandas as pd
 import configparser
 from tqdm import tqdm
+from paths import lifetimes_path, clones_classified_path
 
 # === Read configuration ===
 config = configparser.ConfigParser()
-config.read("./metadata/dados/settings.ini")
+config.read("settings.ini")
 
-projects = [p.strip() for p in config.get("DETAILS", "projects").split(",")]
-metadata_dir = config.get("DETAILS", "path_to_repo", fallback=".") + "/metadata"
+with open("projects_filtered.txt", "r", encoding="utf-8") as f:
+    projects = f.read().split('\n')
 
-OUT_DIR = "results_clones_classifieds"
-os.makedirs(OUT_DIR, exist_ok=True)
+os.makedirs(lifetimes_path, exist_ok=True)
+os.makedirs(clones_classified_path, exist_ok=True)
 
 def classify_clone(start, end, total):
     # start, end, total are integers here
@@ -46,7 +47,7 @@ def classify_clone(start, end, total):
             return "unknown"
 
 for project in projects:
-    input_csv = os.path.join(metadata_dir, f"{project}_clone_lifetimes.csv")
+    input_csv = os.path.join(lifetimes_path, f"{project}_clone_lifetimes.csv")
     if not os.path.exists(input_csv):
         print(f"⚠️ File not found: {input_csv}")
         continue
@@ -139,6 +140,6 @@ for project in projects:
             "duracao": round(duracao, 4)
         })
 
-    out_csv = os.path.join(OUT_DIR, f"{project}_clone_classified.csv")
+    out_csv = os.path.join(clones_classified_path, f"{project}_clone_classified.csv")
     pd.DataFrame(clone_rows).to_csv(out_csv, index=False)
     print(f"✅ Result saved to: {out_csv}")

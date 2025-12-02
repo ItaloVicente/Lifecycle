@@ -45,6 +45,9 @@ for repo_url, group in repos_grouped:
     print(f"\nRepository: {repo_name} ({len(group)} commits)")
 
     for idx, row in group.iterrows():
+        if idx == 10:
+            break
+
         commit_sha = row["sha_commit"]
 
         try:

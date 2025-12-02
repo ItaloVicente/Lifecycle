@@ -160,7 +160,6 @@ plt.ylabel("Number of commits")
 plt.xticks([1], ["PRs"])
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 plt.savefig(f"{figures_path}/boxplot_{LANGUAGE.lower()}.png")
-plt.show()
 
 # === Separate PR groups ===
 single_commit_prs = commits_per_pr[commits_per_pr["num_commits"] == 1]

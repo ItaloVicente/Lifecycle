@@ -2,11 +2,15 @@
 .venv/
 metadata/dados/token*
 
+execution*.txt
+projects_filtered.txt
 AIDev_Dataset/*
 figures/*
 git_repos/*
 metadata/*
 search_results/*
+lifetimes/*
+clones_classified/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -9,10 +9,9 @@ for file in os.listdir(metadata_path):
 
 projects = sorted(set(projects))
 
-print("\nFound projects:")
-for p in projects:
-    print(p)
+output_path = "projects_filtered.txt"
 
-print("\nLine to paste into settings.ini:")
-print("projects = " + ", ".join(projects))
-print(len(projects))
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(projects))
+
+print(f"\nprojects_filtered.txt generated")

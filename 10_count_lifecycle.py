@@ -1,21 +1,19 @@
 import pandas as pd
 import os
 import glob
-
-# Directory where the previous script saved the results
-# (same value as OUT_DIR from your script)
-OUT_DIR = "results_clones_classifieds"
+from paths import clones_classified_path, summary_path
 
 # Output file name for the summary
-SUMMARY_FILE = os.path.join(OUT_DIR, "summary_pr_by_category.csv")
+summary_file = os.path.join(summary_path, "summary_pr_by_category.csv")
+os.makedirs(clones_classified_path, exist_ok=True)
 
-print(f"🔎 Looking for files in: {OUT_DIR}")
+print(f"🔎 Looking for files in: {clones_classified_path}")
 
 # 1. Find and load all classification files
-all_csv_files = glob.glob(os.path.join(OUT_DIR, "*_clone_classified.csv"))
+all_csv_files = glob.glob(os.path.join(clones_classified_path, "*_clone_classified.csv"))
 
 if not all_csv_files:
-    print(f"⚠️ No '*_clone_classified.csv' files found in '{OUT_DIR}'.")
+    print(f"⚠️ No '*_clone_classified.csv' files found in '{clones_classified_path}'.")
     print("Make sure the first script ran successfully.")
     exit()
 
@@ -27,7 +25,7 @@ for f in all_csv_files:
         df = pd.read_csv(f)
         if not df.empty:
             # We only need these columns for the analysis
-            required_cols = {"project", "pr", "categoria"}
+            required_cols = {"project", "pr", "category"}
             if required_cols.issubset(df.columns):
                 all_data.append(df[list(required_cols)])
             else:
@@ -52,25 +50,25 @@ print(f"Total of {len(combined_df)} clones read.")
 # drop_duplicates() ensures each PR is counted only ONCE per category,
 # even if it has multiple clones in that category.
 print("Identifying unique (PR, Category) pairs...")
-unique_pr_categories = combined_df[["project", "pr", "categoria"]].drop_duplicates()
+unique_pr_categories = combined_df[["project", "pr", "category"]].drop_duplicates()
 
 # 3. Count how many unique PRs exist for each category
 print("Counting unique PRs by category...")
-pr_counts_by_category = unique_pr_categories["categoria"].value_counts()
+pr_counts_by_category = unique_pr_categories["category"].value_counts()
 
 # 4. Format and save the result
 print("Formatting the result...")
-# Convert the Series (where the index is 'categoria' and the value is the count)
+# Convert the Series (where the index is 'category' and the value is the count)
 # into a DataFrame with the requested column names.
 summary_df = pr_counts_by_category.reset_index()
-summary_df.columns = ["tipo", "quantidade"]
+summary_df.columns = ["type", "count"]
 
 # Sort by count for easier reading (optional)
-summary_df = summary_df.sort_values(by="quantidade", ascending=False)
+summary_df = summary_df.sort_values(by="count", ascending=False)
 
 # 5. Save the final CSV
-summary_df.to_csv(SUMMARY_FILE, index=False)
+summary_df.to_csv(summary_file, index=False)
 
 print("\n🎉 PR classification summary completed!")
 print(summary_df)
-print(f"\n✅ Result saved to: {SUMMARY_FILE}")
+print(f"\n✅ Result saved to: {summary_file}")
