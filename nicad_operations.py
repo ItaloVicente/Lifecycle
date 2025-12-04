@@ -26,9 +26,9 @@ def run_nicad(git_repository_path, language, number_pr, number_commit, mode):
                 check=True)
 
     project = git_repository_path.split("/")[-1]
-    nicad_xml = f"{git_repository_path}_functions-clones/{project}_functions-clones-0.30-classes.xml"
+    nicad_xml = f"{git_repository_path}_functions-clones/{project}_functions-clones-0.60-classes.xml"
     
-    old_xml_name = f"{search_results_path}/{project}_functions-clones-0.30-classes.xml"
+    old_xml_name = f"{search_results_path}/{project}_functions-clones-0.60-classes.xml"
     old_path = Path(old_xml_name)
     
     if old_path.exists():
