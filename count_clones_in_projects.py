@@ -1,18 +1,16 @@
 import csv
-import configparser
 import os
 
 # Script para contar PRs únicos afetados e total de clones (com recorrências)
 
-config = configparser.ConfigParser()
-config.read("./metadata/dados/settings.ini")
-projects = [p.strip() for p in config["DETAILS"]["projects"].split(",") if p.strip()]
+with open("projects_filtered.txt", "r", encoding="utf-8") as f:
+    projects = f.read().split('\n')
 
 prs_por_projeto = {}
 clones_por_projeto = {}
 
 for projeto in projects:
-    caminho = os.path.join("results_clones_classifieds", projeto + "_clone_classified.csv")
+    caminho = os.path.join("clones_classified", projeto + "_clone_classified.csv")
 
     if not os.path.exists(caminho):
         print(f"Arquivo não encontrado para o projeto {projeto}: {caminho}")
