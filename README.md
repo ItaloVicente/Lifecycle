@@ -5,7 +5,7 @@ analysis of code clones** found in Pull Requests (PRs) submitted by **AI
 agents**.
 
 The pipeline covers the entire process: dataset extraction, clone
-detection (via Simian and Siamese), classification, and lifecycle
+detection (NiCad), classification, and lifecycle
 computation for each clone across the commits of a PR.
 
 ------------------------------------------------------------------------
@@ -233,3 +233,50 @@ This project was developed for academic and scientific purposes related
 to the study of clone generation and evolution in AI-generated code.
 
 ------------------------------------------------------------------------
+
+## 📊 8. Summary and Counting Results
+
+After successfully executing all pipeline scripts (0–10), additional result directories become available, providing aggregated summaries and quantitative analyses of the detected code clones.
+
+### 📁 `summary_results/`
+
+This directory contains a high-level summary of the code clone lifecycles identified in the study. The files in this folder are generated at the end of the pipeline execution and provide consolidated information about:
+
+* **Clone lifecycle categories** (e.g., single-occurrence, recurring, complete lifecycle).
+* **Distribution of clones** across pull requests.
+* **Overall lifecycle patterns** observed in AI-generated PRs.
+
+> These summaries are intended to support result interpretation and reporting.
+
+### 📁 `count_results/`
+
+This directory contains independent analysis scripts designed to compute quantitative statistics from the processed data. Each script focuses on a specific aspect of clone analysis:
+
+#### `count_clones_in_projects.py`
+Counts the number of detected clones per repository.
+* **Outputs:**
+    * Total number of clones per programming language.
+    * Number of pull requests affected by clones in each language.
+
+#### `count_prs_and_unique_clones.py`
+Classifies pull requests based on clone recurrence:
+* PRs classified as **Single**.
+* PRs classified as **Recurring**.
+* The intersection between both categories.
+* *Additionally, reports the total number of unique clones after deduplication.*
+
+#### `count_type_random_sampling.py`
+Aggregates the results of the manual validation process by counting how many sampled code fragments were classified as:
+* **Type I** clones.
+* **Type II** clones.
+* **Type III** clones.
+* **Non-clones** (false positives).
+
+### 🎲 Random Sampling Utility
+
+An additional utility script, `random_sampling.py`, is provided to support manual validation. This script randomly selects a configurable number of clone instances for inspection.
+
+To change the sample size, simply modify the value inside the script:
+
+```python
+N_SAMPLES = <desired_number>
